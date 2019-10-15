@@ -2,8 +2,8 @@
 
 import copy
 from datetime import datetime
-from player1.reversi_board import ReversiBoard
-from player1.reversi_players import MiniMaxComputerPlayer
+from reversi_board import ReversiBoard
+from reversi_players import MiniMaxComputerPlayer
 
 
 class ReversiGame:
