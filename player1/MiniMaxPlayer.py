@@ -1,4 +1,5 @@
 import copy
+import random
 
 
 class MiniMaxComputerPlayer:
@@ -18,6 +19,7 @@ class MiniMaxComputerPlayer:
         :return: the number pair that represents the best move that can be made, determined by the algorithm
         '''
         possible_moves = board.calc_valid_moves(self.symbol)
+        random.shuffle(possible_moves)
         best_move = possible_moves[0]
         best_score = float('-inf')
         for move in possible_moves:
@@ -43,6 +45,7 @@ class MiniMaxComputerPlayer:
 
         sym = board.get_opponent_symbol(self.symbol)
         possible_moves = board.calc_valid_moves(sym)
+        random.shuffle(possible_moves)
         best_score = float('inf')
         for move in possible_moves:
             bc = copy.deepcopy(board)
@@ -64,6 +67,7 @@ class MiniMaxComputerPlayer:
             return self.evaluation_function(board, self.symbol)
 
         possible_moves = board.calc_valid_moves(self.symbol)
+        random.shuffle(possible_moves)
         best_score = float('-inf')
         for move in possible_moves:
             bc = copy.deepcopy(board)
