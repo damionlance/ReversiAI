@@ -86,8 +86,8 @@ def compare_players(player1, player2):
 
 
 def main():
-    # ReversiGame(HumanPlayer("X"), RandomComputerPlayer("O"))
-    compare_players(MiniMaxComputerPlayer("X", 3, simple_evaluate), MiniMaxComputerPlayer("O", 2, simple_evaluate))
+    #ReversiGame(MiniMaxComputerPlayer("X", 3, simple_evaluate), MiniMaxComputerPlayer("O", 3, simple_evaluate))
+    compare_players(MiniMaxComputerPlayer("X", 4, simple_evaluate), MiniMaxComputerPlayer("O", 2, simple_evaluate))
 
 
 if __name__ == "__main__":

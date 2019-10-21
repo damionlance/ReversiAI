@@ -1,4 +1,5 @@
 import copy
+from player1.damionWork import BeamSearch
 
 
 class MiniMaxComputerPlayer:
