@@ -36,7 +36,12 @@ class MiniMaxABComputerPlayer:
         if depth == self.target or not board.game_continues():
             return self.evaluation_function(board, self.symbol)
 
-        possible_moves = self.order_moves(board, max_turn)
+        opp = board.get_opponent_symbol(self.symbol)
+
+        # possible_moves = self.order_moves(board, max_turn)
+
+        possible_moves = board.calc_valid_moves(self.symbol) if max_turn else board.calc_valid_moves(opp)
+        random.shuffle(possible_moves)
 
         best_score = float('-inf') if max_turn else float('inf')
 

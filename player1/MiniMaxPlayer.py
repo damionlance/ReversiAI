@@ -4,20 +4,12 @@ import random
 
 class MiniMaxComputerPlayer:
 
-    def __init__(self, symbol, target, evaluation_function):
+    def __init__(self, symbol, target, evaluation_function,):
         self.symbol = symbol
         self.target = target
         self.evaluation_function = evaluation_function
 
     def get_move(self, board):
-        return self.minimax(board)
-
-    def minimax(self, board):
-        '''
-        Starts the recursive minimax algorithm and acts as the first Max move
-        :param board: the board being played on
-        :return: the number pair that represents the best move that can be made, determined by the algorithm
-        '''
         possible_moves = board.calc_valid_moves(self.symbol)
         random.shuffle(possible_moves)
         best_move = possible_moves[0]
@@ -25,58 +17,62 @@ class MiniMaxComputerPlayer:
         for move in possible_moves:
             bc = copy.deepcopy(board)
             bc.make_move(self.symbol, move)
-            # Find min score and increment depth by 1
-            score = self.min_play(bc, 1)
+
+            score = self.minimax(bc, 1, False, float('-inf'), float('inf'))
+
             if score > best_score:
-                best_move = move
                 best_score = score
+                best_move = move
+
         return best_move
 
-    def min_play(self, board, depth):
+    def minimax(self, board, depth, max_turn, alpha, beta):
         '''
-        acts as the opponent in the minimax algorithm
-        :param board: board being played on
-        :param depth: current move depth
-        :return: the minimum score that can be found
+        Starts the recursive minimax algorithm and acts as the first Max move
+        :param board: the board being played on
+        :return: the number pair that represents the best move that can be made, determined by the algorithm
         '''
-        # Recursive base case: target depth is met or game is over
+
         if depth == self.target or not board.game_continues():
             return self.evaluation_function(board, self.symbol)
 
-        sym = board.get_opponent_symbol(self.symbol)
-        possible_moves = board.calc_valid_moves(sym)
+        opp = board.get_opponent_symbol(self.symbol)
+
+        # possible_moves = self.order_moves(board, max_turn)
+
+        possible_moves = board.calc_valid_moves(self.symbol) if max_turn else board.calc_valid_moves(opp)
         random.shuffle(possible_moves)
-        best_score = float('inf')
+
+        best_score = float('-inf') if max_turn else float('inf')
+
         for move in possible_moves:
             bc = copy.deepcopy(board)
-            bc.make_move(sym, move)
-            score = self.max_play(bc, depth+1)
-            if score < best_score:
-                best_move = move
+            bc.make_move(self.symbol, move) if max_turn else bc.make_move(bc.get_opponent_symbol(self.symbol), move)
+
+            score = self.minimax(bc, depth+1, not max_turn, alpha, beta)
+
+            if max_turn and score > best_score:
                 best_score = score
+                best_move = move
+
+            if not max_turn and score < best_score:
+                best_score = score
+
         return best_score
 
-    def max_play(self, board, depth):
-        '''
-        acts as the player in the minimax algorithm
-        :param board: board being played on
-        :param depth: current move depth
-        :return: the max score that can be found
-        '''
-        if depth == self.target or not board.game_continues():
-            return self.evaluation_function(board, self.symbol)
-
-        possible_moves = board.calc_valid_moves(self.symbol)
-        random.shuffle(possible_moves)
-        best_score = float('-inf')
+    def order_moves(self, board, max_turn):
+        opp = board.get_opponent_symbol(self.symbol)
+        possible_moves = board.calc_valid_moves(self.symbol) if max_turn else board.calc_valid_moves(opp)
+        move_scores = []
         for move in possible_moves:
             bc = copy.deepcopy(board)
-            bc.make_move(self.symbol, move)
-            score = self.min_play(bc, depth+1)
-            if score > best_score:
-                best_move = move
-                best_score = score
-        return best_score
+            bc.make_move(self.symbol, move) if max_turn else bc.make_move(opp, move)
+            score = self.evaluation_function(bc, self.symbol) if max_turn else self.evaluation_function(bc, opp)
+            move_scores.append({'move': move, 'score':score})
+
+        ordered = sorted(move_scores, key=lambda x: x['score'], reverse=True if max_turn else False)
+        return [x['move'] for x in ordered]
+
 
 
 def simple_evaluate(board, symbol):
