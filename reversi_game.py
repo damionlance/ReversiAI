@@ -3,7 +3,7 @@
 import copy
 from datetime import datetime
 from reversi_board import ReversiBoard
-from player1.MiniMaxPlayer import MiniMaxComputerPlayer, simple_evaluate
+from player1.MiniMaxPlayer import MiniMaxComputerPlayer, simple_evaluate, difference_heuristic, mobility_heuristic, corner_heuristic, combined_heuristics
 
 
 class ReversiGame:
@@ -87,7 +87,7 @@ def compare_players(player1, player2):
 
 def main():
     # ReversiGame(HumanPlayer("X"), RandomComputerPlayer("O"))
-    compare_players(MiniMaxComputerPlayer("X", 3, simple_evaluate), MiniMaxComputerPlayer("O", 2, simple_evaluate))
+    compare_players(MiniMaxComputerPlayer("X", 2, corner_heuristic), MiniMaxComputerPlayer("O", 2, combined_heuristics))
 
 
 if __name__ == "__main__":
