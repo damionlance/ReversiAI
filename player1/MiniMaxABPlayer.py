@@ -4,14 +4,15 @@ import random
 
 class MiniMaxABComputerPlayer:
 
-    def __init__(self, symbol, target, evaluation_function,):
+    def __init__(self, symbol, target, evaluation_function, pruning):
         self.symbol = symbol
         self.target = target
         self.evaluation_function = evaluation_function
+        self.ab_pruning = pruning
 
     def get_move(self, board):
         possible_moves = board.calc_valid_moves(self.symbol)
-        random.shuffle(possible_moves)
+        #random.shuffle(possible_moves)
         best_move = possible_moves[0]
         best_score = float('-inf')
         for move in possible_moves:
@@ -41,7 +42,7 @@ class MiniMaxABComputerPlayer:
         # possible_moves = self.order_moves(board, max_turn)
 
         possible_moves = board.calc_valid_moves(self.symbol) if max_turn else board.calc_valid_moves(opp)
-        random.shuffle(possible_moves)
+        #random.shuffle(possible_moves)
 
         best_score = float('-inf') if max_turn else float('inf')
 
@@ -51,17 +52,21 @@ class MiniMaxABComputerPlayer:
 
             score = self.minimax(bc, depth+1, not max_turn, alpha, beta)
 
-            if max_turn:
-                best_score = max(best_score, score)
-                if best_score >= beta:
-                    return best_score
-                alpha = max(alpha, best_score)
+            if max_turn and score > best_score:
+                best_score = score
 
-            if not max_turn:
-                best_score = min(best_score, score)
-                if best_score <= alpha:
-                    return best_score
-                beta = min(beta, best_score)
+                if self.ab_pruning:
+                    alpha = max(alpha, best_score)
+                    if beta <= alpha:
+                        break
+
+            if not max_turn and score < best_score:
+                best_score = score
+
+                if self.ab_pruning:
+                    beta = min(beta, best_score)
+                    if beta <= alpha:
+                        break
 
         return best_score
 
@@ -79,13 +84,13 @@ class MiniMaxABComputerPlayer:
         return [x['move'] for x in ordered]
 
 
-
 def simple_evaluate(board, symbol):
     scores = board.calc_scores()
     opp = board.get_opponent_symbol(symbol)
+
     if scores[symbol] > scores[opp]:
-        return scores[symbol] - scores[opp]
+        return scores[symbol]
     elif scores[symbol] == scores[opp]:
         return 0
     else:
-        return -1
+        return 0-scores[opp]
