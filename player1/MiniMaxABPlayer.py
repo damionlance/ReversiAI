@@ -2,7 +2,7 @@ import copy
 import random
 
 
-class MiniMaxComputerPlayer:
+class MiniMaxABComputerPlayer:
 
     def __init__(self, symbol, target, evaluation_function,):
         self.symbol = symbol
@@ -51,12 +51,17 @@ class MiniMaxComputerPlayer:
 
             score = self.minimax(bc, depth+1, not max_turn, alpha, beta)
 
-            if max_turn and score > best_score:
-                best_score = score
-                best_move = move
+            if max_turn:
+                best_score = max(best_score, score)
+                if best_score >= beta:
+                    return best_score
+                alpha = max(alpha, best_score)
 
-            if not max_turn and score < best_score:
-                best_score = score
+            if not max_turn:
+                best_score = min(best_score, score)
+                if best_score <= alpha:
+                    return best_score
+                beta = min(beta, best_score)
 
         return best_score
 
