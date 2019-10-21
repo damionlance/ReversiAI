@@ -2,7 +2,7 @@ import copy
 import random
 
 
-class MiniMaxComputerPlayer:
+class MiniMaxABComputerPlayer:
 
     def __init__(self, symbol, target, evaluation_function,):
         self.symbol = symbol
@@ -51,12 +51,17 @@ class MiniMaxComputerPlayer:
 
             score = self.minimax(bc, depth+1, not max_turn, alpha, beta)
 
-            if max_turn and score > best_score:
-                best_score = score
-                best_move = move
+            if max_turn:
+                best_score = max(best_score, score)
+                if best_score >= beta:
+                    return best_score
+                alpha = max(alpha, best_score)
 
-            if not max_turn and score < best_score:
-                best_score = score
+            if not max_turn:
+                best_score = min(best_score, score)
+                if best_score <= alpha:
+                    return best_score
+                beta = min(beta, best_score)
 
         return best_score
 
@@ -84,52 +89,3 @@ def simple_evaluate(board, symbol):
         return 0
     else:
         return -1
-
-
-def difference_heuristic(board, symbol):
-    scores = board.calc_scores()
-    opponent = board.get_opponent_symbol(symbol)
-
-    point_percent = 100 * ((scores[symbol] - scores[opponent]) / (scores[symbol] + scores[opponent]))
-    return point_percent
-
-
-def mobility_heuristic(board, symbol):
-    opponent = board.get_opponent_symbol(symbol)
-
-    if board.game_continues():
-        num_moves = len(board.calc_valid_moves(symbol))
-        num_opponent_moves = len(board.calc_valid_moves(opponent))
-
-        percent_mobility = 100 * ((num_moves - num_opponent_moves) / (num_moves + num_opponent_moves))
-        return percent_mobility
-
-    else:
-        return 0
-
-
-def corner_heuristic(board, symbol):
-    opponent = board.get_opponent_symbol(symbol)
-    size = board.get_size()
-    corners = [[0, 0], [0, size-1], [size-1, 0], [size-1, size-1]]
-    self_corners = 0
-    opponent_corners = 0
-
-    for corner in corners:
-        if board.get_symbol_for_position(corner) == symbol:
-            self_corners += 1
-        elif board.get_symbol_for_position(corner) == opponent:
-            opponent_corners += 1
-
-    if self_corners + opponent_corners != 0:
-        percent_corners = 100 * ((self_corners - opponent_corners) / (self_corners + opponent_corners))
-        return percent_corners
-    else:
-        return 0
-
-
-def combined_heuristics(board, symbol):
-    overall_heuristic = difference_heuristic(board, symbol) + mobility_heuristic(board, symbol) + corner_heuristic(board, symbol)
-    return overall_heuristic
-
-
