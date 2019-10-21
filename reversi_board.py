@@ -1,5 +1,6 @@
 # adapted by Toby Dragon from original source code by Al Sweigart, available with creative commons license: https://inventwithpython.com/#donate
 import json
+import random
 
 class ReversiBoard:
 
@@ -19,7 +20,9 @@ class ReversiBoard:
         return _makeMove(self._board, symbol, position[0], position[1])
 
     def calc_valid_moves(self, symbol):
-        return _checkValidMoves(self._board, symbol)
+        to_return = _checkValidMoves(self._board, symbol)
+        random.shuffle(to_return)
+        return to_return
 
     def game_continues(self):
         return self.calc_valid_moves("X") != [] or self.calc_valid_moves("O") != []

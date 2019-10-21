@@ -87,7 +87,7 @@ def compare_players(player1, player2):
 
 def main():
     # ReversiGame(HumanPlayer("X"), RandomComputerPlayer("O"))
-    compare_players(MiniMaxComputerPlayer("X", 2, corner_heuristic), MiniMaxComputerPlayer("O", 2, combined_heuristics))
+    compare_players(MiniMaxComputerPlayer("X", 3, combined_heuristics), MiniMaxComputerPlayer("O", 2, combined_heuristics))
 
 
 if __name__ == "__main__":
