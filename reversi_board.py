@@ -20,9 +20,9 @@ class ReversiBoard:
         return _makeMove(self._board, symbol, position[0], position[1])
 
     def calc_valid_moves(self, symbol):
-        to_return = _checkValidMoves(self._board, symbol)
-        random.shuffle(to_return)
-        return to_return
+        moves = _checkValidMoves(self._board, symbol)
+        random.shuffle(moves)
+        return moves
 
     def game_continues(self):
         return self.calc_valid_moves("X") != [] or self.calc_valid_moves("O") != []

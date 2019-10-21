@@ -68,11 +68,12 @@ def print_scores(score_map):
     print()
 
 
-def compare_players(player1, player2):
+def compare_players(player1, player2, games):
     game_count_map = {player1.symbol: 0, player2.symbol: 0, "TIE": 0}
     time_elapsed_map = {player1.symbol: 0, player2.symbol: 0}
-    for i in range(0, 50):
-        if i % 5 == 0:
+    average_scores = {player1.symbol: 0, player2.symbol: 0}
+    for i in range(0, games):
+        if i % 10 == 0:
             print(i, "games finished")
         if i % 2 == 0:
             game = ReversiGame(player1, player2, show_status=False, board_size=8)
@@ -81,15 +82,21 @@ def compare_players(player1, player2):
 
         game_count_map[game.calc_winner()] += 1
         decision_times = game.get_decision_times()
+        average_scores[player1.symbol] += game.board.calc_scores()[player1.symbol]
+        average_scores[player2.symbol] += game.board.calc_scores()[player2.symbol]
         for symbol in decision_times:
             time_elapsed_map[symbol] += decision_times[symbol]
+
+    average_scores[player1.symbol] = average_scores[player1.symbol]/games
+    average_scores[player2.symbol] = average_scores[player2.symbol]/games
     print(game_count_map)
     print(time_elapsed_map)
+    print(average_scores)
 
 
 def main():
-    #ReversiGame(MiniMaxABComputerPlayer("X", 3, simple_evaluate), MiniMaxComputerPlayer("O", 1, simple_evaluate))
-    compare_players(MiniMaxComputerPlayer("X", 3, simple_evaluate), MiniMaxABComputerPlayer("O", 3, simple_evaluate))
+    #ReversiGame(MiniMaxABComputerPlayer("X", 3, simple_evaluate, True), MiniMaxABComputerPlayer("O", 3, simple_evaluate, False))
+    compare_players(MiniMaxComputerPlayer("X", 3, simple_evaluate, pruning=True), MiniMaxABComputerPlayer("O", 3, simple_evaluate, pruning=False), 50)
 
 
 if __name__ == "__main__":
