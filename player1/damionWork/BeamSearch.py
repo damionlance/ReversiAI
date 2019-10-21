@@ -1,5 +1,6 @@
 import copy
 
+
 def beam_search(board, move_list, symbol, beam_width=4):
     value_dictionary = {}
     for move in move_list:
@@ -16,6 +17,7 @@ def beam_search(board, move_list, symbol, beam_width=4):
         value_dictionary.pop(max_keys[0])
     return modified_move_list
 
+
 def _heuristic_score(board, symbol, heuristic_function):
     score = 0
     for x in range(board.get_size()):
@@ -23,6 +25,7 @@ def _heuristic_score(board, symbol, heuristic_function):
             if board.get_symbol_for_position([x, y]) == symbol:
                 score += heuristic_function[x][y]
     return score
+
 
 def _valued_corners_edges():
     compareBoard = [[100, 25, 25, 25, 25, 25, 25, 100],
@@ -34,6 +37,7 @@ def _valued_corners_edges():
                     [25, 1, 1, 1, 1, 1, 1, 25],
                     [100, 25, 25, 25, 25, 25, 25, 100]]
     return compareBoard
+
 
 def _gradually_valued_corners_edges():
     compareBoard = [[100, 25, 25, 25, 25, 25, 25, 100],
