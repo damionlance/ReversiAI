@@ -4,7 +4,7 @@ import random
 
 class MiniMaxABComputerPlayer:
 
-    def __init__(self, symbol, target, evaluation_function):
+    def __init__(self, symbol, target, evaluation_function,):
         self.symbol = symbol
         self.target = target
         self.evaluation_function = evaluation_function
@@ -18,7 +18,7 @@ class MiniMaxABComputerPlayer:
             bc = copy.deepcopy(board)
             bc.make_move(self.symbol, move)
 
-            score = self.minimax(bc, 1, False)
+            score = self.minimax(bc, 1, False, float('-inf'), float('inf'))
 
             if score > best_score:
                 best_score = score
@@ -26,7 +26,7 @@ class MiniMaxABComputerPlayer:
 
         return best_move
 
-    def minimax(self, board, depth, max_turn):
+    def minimax(self, board, depth, max_turn, alpha, beta):
         '''
         Starts the recursive minimax algorithm and acts as the first Max move
         :param board: the board being played on
@@ -36,25 +36,43 @@ class MiniMaxABComputerPlayer:
         if depth == self.target or not board.game_continues():
             return self.evaluation_function(board, self.symbol)
 
-        possible_moves = board.calc_valid_moves(self.symbol) if max_turn else board.calc_valid_moves(board.get_opponent_symbol(self.symbol))
-        random.shuffle(possible_moves)
+        possible_moves = self.order_moves(board, max_turn)
 
         best_score = float('-inf') if max_turn else float('inf')
 
         for move in possible_moves:
             bc = copy.deepcopy(board)
-            bc.make_move(self.symbol, move)
+            bc.make_move(self.symbol, move) if max_turn else bc.make_move(bc.get_opponent_symbol(self.symbol), move)
 
-            score = self.minimax(bc, depth+1, not max_turn)
+            score = self.minimax(bc, depth+1, not max_turn, alpha, beta)
 
-            if max_turn and score > best_score:
-                best_score = score
-                best_move = move
+            if max_turn:
+                best_score = max(best_score, score)
+                if best_score >= beta:
+                    return best_score
+                alpha = max(alpha, best_score)
 
-            if (not max_turn) and score < best_score:
-                best_score = score
+            if not max_turn:
+                best_score = min(best_score, score)
+                if best_score <= alpha:
+                    return best_score
+                beta = min(beta, best_score)
 
         return best_score
+
+    def order_moves(self, board, max_turn):
+        opp = board.get_opponent_symbol(self.symbol)
+        possible_moves = board.calc_valid_moves(self.symbol) if max_turn else board.calc_valid_moves(opp)
+        move_scores = []
+        for move in possible_moves:
+            bc = copy.deepcopy(board)
+            bc.make_move(self.symbol, move) if max_turn else bc.make_move(opp, move)
+            score = self.evaluation_function(bc, self.symbol) if max_turn else self.evaluation_function(bc, opp)
+            move_scores.append({'move': move, 'score':score})
+
+        ordered = sorted(move_scores, key=lambda x: x['score'], reverse=True if max_turn else False)
+        return [x['move'] for x in ordered]
+
 
 
 def simple_evaluate(board, symbol):
