@@ -4,6 +4,7 @@ import copy
 from datetime import datetime
 from reversi_board import ReversiBoard
 from player1.MiniMaxPlayer import MiniMaxComputerPlayer, simple_evaluate
+from player1.MiniMaxABPlayer import *
 
 
 class ReversiGame:
@@ -69,7 +70,7 @@ def print_scores(score_map):
 def compare_players(player1, player2):
     game_count_map = {player1.symbol: 0, player2.symbol: 0, "TIE": 0}
     time_elapsed_map = {player1.symbol: 0, player2.symbol: 0}
-    for i in range(0, 20):
+    for i in range(0, 50):
         if i % 5 == 0:
             print(i, "games finished")
         if i % 2 == 0:
@@ -86,8 +87,8 @@ def compare_players(player1, player2):
 
 
 def main():
-    # ReversiGame(HumanPlayer("X"), RandomComputerPlayer("O"))
-    compare_players(MiniMaxComputerPlayer("X", 3, simple_evaluate), MiniMaxComputerPlayer("O", 2, simple_evaluate))
+    #ReversiGame(MiniMaxABComputerPlayer("X", 3, simple_evaluate), MiniMaxComputerPlayer("O", 1, simple_evaluate))
+    compare_players(MiniMaxComputerPlayer("X", 3, simple_evaluate), MiniMaxABComputerPlayer("O", 3, simple_evaluate))
 
 
 if __name__ == "__main__":
