@@ -4,14 +4,17 @@ import random
 
 class MiniMaxComputerPlayer:
 
-    def __init__(self, symbol, target, evaluation_function, pruning):
+    def __init__(self, symbol, target, evaluation_function, pruning, beam_search=None):
         self.symbol = symbol
         self.target = target
         self.evaluation_function = evaluation_function
         self.ab_pruning = pruning
+        self.move_pruning = beam_search
 
     def get_move(self, board):
         possible_moves = board.calc_valid_moves(self.symbol)
+        if self.move_pruning is not None:
+            possible_moves = self.move_pruning(board, possible_moves, self.symbol)
         # random.shuffle(possible_moves)
         best_move = possible_moves[0]
         best_score = float('-inf')
@@ -41,7 +44,13 @@ class MiniMaxComputerPlayer:
 
         # possible_moves = self.order_moves(board, max_turn)
 
-        possible_moves = board.calc_valid_moves(self.symbol) if max_turn else board.calc_valid_moves(opp)
+        if self.move_pruning is not None:
+            possible_moves = self.move_pruning(board, board.calc_valid_moves(self.symbol),
+                                               self.symbol) if max_turn else self.move_pruning(board,
+                                                                                               board.calc_valid_moves(
+                                                                                                   opp), opp)
+        else:
+            possible_moves = board.calc_valid_moves(self.symbol) if max_turn else board.calc_valid_moves(opp)
         # random.shuffle(possible_moves)
 
         best_score = float('-inf') if max_turn else float('inf')
@@ -72,7 +81,10 @@ class MiniMaxComputerPlayer:
 
     def order_moves(self, board, max_turn):
         opp = board.get_opponent_symbol(self.symbol)
-        possible_moves = board.calc_valid_moves(self.symbol) if max_turn else board.calc_valid_moves(opp)
+        if self.move_pruning is not None:
+            possible_moves = self.move_pruning(board, board.calc_valid_moves(self.symbol), self.symbol) if max_turn else self.move_pruning(board, board.calc_valid_moves(opp), opp)
+        else:
+            possible_moves = board.calc_valid_moves(self.symbol) if max_turn else board.calc_valid_moves(opp)
         move_scores = []
         for move in possible_moves:
             bc = copy.deepcopy(board)

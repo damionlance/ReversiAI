@@ -13,7 +13,8 @@ class MiniMaxBeamComputerPlayer:
 
     def get_move(self, board):
         possible_moves = board.calc_valid_moves(self.symbol)
-        possible_moves = self.pruning(board, possible_moves, self.symbol)
+        if self.move_pruning:
+            possible_moves = self.move_pruning(board, possible_moves, self.symbol)
         random.shuffle(possible_moves)
         best_move = possible_moves[0]
         best_score = float('-inf')
@@ -43,7 +44,10 @@ class MiniMaxBeamComputerPlayer:
 
         # possible_moves = self.order_moves(board, max_turn)
 
-        possible_moves = self.pruning(board, board.calc_valid_moves(self.symbol), self.symbol) if max_turn else self.pruning(board, board.calc_valid_moves(opp), opp)
+        if self.move_pruning is not None:
+            possible_moves = self.move_pruning(board, board.calc_valid_moves(self.symbol), self.symbol) if max_turn else self.move_pruning(board, board.calc_valid_moves(opp), opp)
+        else:
+            possible_moves = board.calc_valid_moves(self.symbol) if max_turn else board.calc_valid_moves(opp)
         random.shuffle(possible_moves)
 
         best_score = float('-inf') if max_turn else float('inf')
