@@ -6,6 +6,7 @@ from reversi_board import ReversiBoard
 from player1.MiniMaxPlayer import MiniMaxComputerPlayer, simple_evaluate, difference_heuristic, mobility_heuristic, corner_heuristic, combined_heuristics
 from player1.MiniMaxPlayer import MiniMaxComputerPlayer, simple_evaluate
 from player1.MiniMaxABPlayer import *
+from player1.damionWork.BeamSearch import beam_search
 
 
 class ReversiGame:
@@ -96,7 +97,7 @@ def compare_players(player1, player2, games):
 
 def main():
     #ReversiGame(MiniMaxABComputerPlayer("X", 3, simple_evaluate, True), MiniMaxABComputerPlayer("O", 3, simple_evaluate, False))
-    compare_players(MiniMaxComputerPlayer("X", 3, simple_evaluate, pruning=True), MiniMaxABComputerPlayer("O", 3, simple_evaluate, pruning=False), 50)
+    compare_players(MiniMaxComputerPlayer("X", 3, simple_evaluate, pruning=True, beam_search=beam_search), MiniMaxABComputerPlayer("O", 3, simple_evaluate, pruning=False), 50)
 
 
 if __name__ == "__main__":
