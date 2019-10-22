@@ -21,7 +21,6 @@ class ReversiBoard:
 
     def calc_valid_moves(self, symbol):
         moves = _checkValidMoves(self._board, symbol)
-        random.shuffle(moves)
         return moves
 
     def game_continues(self):

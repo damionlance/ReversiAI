@@ -15,7 +15,7 @@ class MiniMaxComputerPlayer:
         possible_moves = board.calc_valid_moves(self.symbol)
         if self.move_pruning is not None:
             possible_moves = self.move_pruning(board, possible_moves, self.symbol)
-        # random.shuffle(possible_moves)
+        random.shuffle(possible_moves)
         best_move = possible_moves[0]
         best_score = float('-inf')
         for move in possible_moves:
@@ -51,7 +51,7 @@ class MiniMaxComputerPlayer:
                                                                                                    opp), opp)
         else:
             possible_moves = board.calc_valid_moves(self.symbol) if max_turn else board.calc_valid_moves(opp)
-        # random.shuffle(possible_moves)
+        random.shuffle(possible_moves)
 
         best_score = float('-inf') if max_turn else float('inf')
 
