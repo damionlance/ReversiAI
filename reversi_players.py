@@ -69,7 +69,7 @@ class MiniMaxComputerPlayer:
         return self.minimax(board)
 
     def minimax(self, board):
-        possible_moves = board.calc_valid_moves(self.symbol)
+        possible_moves = board.calc_valid_moves(self.symbol)  # TODO remove shuffle
         best_move = possible_moves[0]
         best_score = float('-inf')
         for move in possible_moves:
@@ -114,9 +114,7 @@ class MiniMaxComputerPlayer:
     def evaluate(self, board):
         scores = board.calc_scores()
         opp = board.get_opponent_symbol(self.symbol)
-        if scores[self.symbol] > scores[opp]:
-            return scores[self.symbol] - scores[opp]
-        elif scores[self.symbol] == scores[opp]:
+        if scores[self.symbol] == scores[opp]:
             return 0
         else:
-            return -1
+            return scores[self.symbol] - scores[opp]
