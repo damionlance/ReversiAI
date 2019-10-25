@@ -13,9 +13,11 @@ class MiniMaxComputerPlayer:
         self.beam_width = beam_width
         self.expanding = expanding
         self.turn_number = 0
+        self.reset = True
 
     def get_move(self, board):
         self.turn_number += 1
+
         possible_moves = board.calc_valid_moves(self.symbol)
         if self.move_pruning is not None:
             possible_moves = self.move_pruning(board, possible_moves, self.symbol, beam_width=self.beam_width)
@@ -30,6 +32,9 @@ class MiniMaxComputerPlayer:
             if score > best_score:
                 best_score = score
                 best_move = move
+
+        if self.turn_number >= 27:
+            self.check_for_start(board)
 
         return best_move
 
@@ -99,6 +104,22 @@ class MiniMaxComputerPlayer:
         ordered = sorted(move_scores, key=lambda x: x['score'], reverse=True if max_turn else False)
         return [x['move'] for x in ordered]
 
+    def check_for_start(self, board):
+        spots_to_check = [(2,2), (2,3), (2,4), (2,5), (3,2), (3,5), (4,2), (4,5), (5,2), (5,3), (5,4), (5,5)]
+        found = []
+        for spot in spots_to_check:
+            exists = board.get_symbol_for_position(spot)
+            if exists == "X" or exists == "O":
+                found.append(spot)
+        if len(found) <= 1:
+            if not self.reset:
+                self.reset = True
+                self.turn_number = 0
+                print("resetting turn number for", self.symbol)
+        else:
+            self.reset = False
+
+
 
 
 def simple_evaluate(board, symbol):
@@ -158,5 +179,8 @@ def corner_heuristic(board, symbol):
 def combined_heuristics(board, symbol):
     overall_heuristic = difference_heuristic(board, symbol) + mobility_heuristic(board, symbol) + corner_heuristic(board, symbol)
     return overall_heuristic
+
+
+
 
 
