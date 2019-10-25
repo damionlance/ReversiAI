@@ -17,6 +17,8 @@ class ReversiGame:
         else:
             self.board = ReversiBoard(board_filename=board_filename)
         self.decision_times = {self.player1.symbol: 0, self.player2.symbol: 0}
+        self.moves_made = {self.player1.symbol: 0, self.player2.symbol: 0}
+        self.max_decision_time = {self.player1.symbol: 0, self.player2.symbol: 0}
         self.play_game()
 
     def play_game(self):
@@ -32,12 +34,19 @@ class ReversiGame:
         start = datetime.now()
         self.play_move(self.player1)
         self.decision_times[self.player1.symbol] += (datetime.now()-start).total_seconds()
+        move_time = (datetime.now()-start).total_seconds()
+        self.max_decision_time[self.player1.symbol] = move_time if move_time > self.max_decision_time[self.player1.symbol] else self.max_decision_time[self.player1.symbol]
         start = datetime.now()
         self.play_move(self.player2)
         self.decision_times[self.player2.symbol] += (datetime.now()-start).total_seconds()
+        move_time = (datetime.now()-start).total_seconds()
+        self.max_decision_time[self.player2.symbol] = move_time if move_time > self.max_decision_time[self.player2.symbol] else self.max_decision_time[self.player2.symbol]
+
+
 
     def play_move(self, player):
         if self.board.calc_valid_moves(player.symbol):
+            self.moves_made[player.symbol] += 1
             chosen_move = player.get_move(copy.deepcopy(self.board))
             if not self.board.make_move(player.symbol, chosen_move):
                 print("Error: invalid move made")
@@ -70,31 +79,55 @@ def compare_players(player1, player2, games):
     game_count_map = {player1.symbol: 0, player2.symbol: 0, "TIE": 0}
     time_elapsed_map = {player1.symbol: 0, player2.symbol: 0}
     average_scores = {player1.symbol: 0, player2.symbol: 0}
+    average_move_time = {player1.symbol: 0, player2.symbol: 0}
+    moves = {player1.symbol:0, player2.symbol:0}
+    max_decision_time = {player1.symbol: 0, player2.symbol: 0}
     for i in range(0, games):
-        if i % 10 == 0:
+        if i % 1 == 0:
             print(i, "games finished")
         if i % 2 == 0:
             game = ReversiGame(player1, player2, show_status=False, board_size=8)
         else:
             game = ReversiGame(player2, player1, show_status=False, board_size=8)
 
+        print(player1.turn_number)
+
         game_count_map[game.calc_winner()] += 1
         decision_times = game.get_decision_times()
         average_scores[player1.symbol] += game.board.calc_scores()[player1.symbol]
         average_scores[player2.symbol] += game.board.calc_scores()[player2.symbol]
+
+        max_decision_time[player1.symbol] = game.max_decision_time[player1.symbol] if game.max_decision_time[player1.symbol] > max_decision_time[player1.symbol] else max_decision_time[player1.symbol]
+        max_decision_time[player2.symbol] = game.max_decision_time[player2.symbol] if game.max_decision_time[player2.symbol] > max_decision_time[player2.symbol] else max_decision_time[player2.symbol]
+
         for symbol in decision_times:
             time_elapsed_map[symbol] += decision_times[symbol]
+            average_move_time[symbol] += (decision_times[symbol] / game.moves_made[symbol])
+            moves[symbol] += game.moves_made[symbol]
 
     average_scores[player1.symbol] = average_scores[player1.symbol]/games
     average_scores[player2.symbol] = average_scores[player2.symbol]/games
     print(game_count_map)
-    print(time_elapsed_map)
     print(average_scores)
+    for symbol in ["X", 'O']:
+        t = time_elapsed_map[symbol] / moves[symbol]
+        print(symbol+" average decision time: ", t)
+
+    print("Highest Decision Times: ", max_decision_time)
 
 
 def main():
-    ReversiGame(get_default_player('X',3), get_default_player('O', 3))
-    #compare_players(get_default_player('X', 3), get_default_player('O', 3), 10)
+    # game = ReversiGame(get_combined_player('X', depth=5, width=5, expanding=False), get_combined_player('O', depth=6, width=4, expanding=True), show_status=True)
+    # print(game.max_decision_time)
+    # print("Total Moves made by each player: "+ "X: "+ str(game.moves_made['X']) + " O: "+str(game.moves_made['O']))
+    # for player in ['X', 'O']:
+    #     moves = game.moves_made[player]
+    #     time = game.decision_times[player]
+    #     average = time/moves
+    #     print("Average Decision Time For Player "+player+": "+str(average))
+    compare_players(get_combined_player('X'), get_base_player('O'), 5)
+
+    # once we are close to end of game widen the beam
 
 if __name__ == "__main__":
     main()

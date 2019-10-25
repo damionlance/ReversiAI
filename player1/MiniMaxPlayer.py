@@ -4,29 +4,37 @@ import random
 
 class MiniMaxComputerPlayer:
 
-    def __init__(self, symbol, target, evaluation_function, pruning, beam_search=None):
+    def __init__(self, symbol, target, evaluation_function, pruning, beam_width=3, beam_search=None, expanding=False):
         self.symbol = symbol
         self.target = target
         self.evaluation_function = evaluation_function
         self.ab_pruning = pruning
         self.move_pruning = beam_search
+        self.beam_width = beam_width
+        self.expanding = expanding
+        self.turn_number = 0
+        self.reset = True
 
     def get_move(self, board):
+        self.turn_number += 1
+
         possible_moves = board.calc_valid_moves(self.symbol)
         if self.move_pruning is not None:
-            possible_moves = self.move_pruning(board, possible_moves, self.symbol)
+            possible_moves = self.move_pruning(board, possible_moves, self.symbol, beam_width=self.beam_width)
         random.shuffle(possible_moves)
         best_move = possible_moves[0]
         best_score = float('-inf')
         for move in possible_moves:
             bc = copy.deepcopy(board)
             bc.make_move(self.symbol, move)
-
             score = self.minimax(bc, 1, False, float('-inf'), float('inf'))
 
             if score > best_score:
                 best_score = score
                 best_move = move
+
+        if self.turn_number >= 27:
+            self.check_for_start(board)
 
         return best_move
 
@@ -42,13 +50,14 @@ class MiniMaxComputerPlayer:
 
         opp = board.get_opponent_symbol(self.symbol)
 
-        # possible_moves = self.order_moves(board, max_turn)
+        if self.expanding:
+            if self.turn_number >= 30-self.target:
+                self.target -= 1
+                self.beam_width += 1
 
         if self.move_pruning is not None:
-            possible_moves = self.move_pruning(board, board.calc_valid_moves(self.symbol),
-                                               self.symbol) if max_turn else self.move_pruning(board,
-                                                                                               board.calc_valid_moves(
-                                                                                                   opp), opp)
+            possible_moves = self.move_pruning(board, board.calc_valid_moves(self.symbol),self.symbol, beam_width=self.beam_width) \
+                if max_turn else self.move_pruning(board, board.calc_valid_moves(opp), opp, beam_width=self.beam_width)
         else:
             possible_moves = board.calc_valid_moves(self.symbol) if max_turn else board.calc_valid_moves(opp)
         random.shuffle(possible_moves)
@@ -94,6 +103,22 @@ class MiniMaxComputerPlayer:
 
         ordered = sorted(move_scores, key=lambda x: x['score'], reverse=True if max_turn else False)
         return [x['move'] for x in ordered]
+
+    def check_for_start(self, board):
+        spots_to_check = [(2,2), (2,3), (2,4), (2,5), (3,2), (3,5), (4,2), (4,5), (5,2), (5,3), (5,4), (5,5)]
+        found = []
+        for spot in spots_to_check:
+            exists = board.get_symbol_for_position(spot)
+            if exists == "X" or exists == "O":
+                found.append(spot)
+        if len(found) <= 1:
+            if not self.reset:
+                self.reset = True
+                self.turn_number = 0
+                print("resetting turn number for", self.symbol)
+        else:
+            self.reset = False
+
 
 
 
@@ -154,5 +179,8 @@ def corner_heuristic(board, symbol):
 def combined_heuristics(board, symbol):
     overall_heuristic = difference_heuristic(board, symbol) + mobility_heuristic(board, symbol) + corner_heuristic(board, symbol)
     return overall_heuristic
+
+
+
 
 

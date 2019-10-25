@@ -1,7 +1,7 @@
 import copy
 
 
-def beam_search(board, move_list, symbol, beam_width=4):
+def beam_search(board, move_list, symbol, beam_width):
     value_dictionary = {}
     for move in move_list:
         tempboard = copy.deepcopy(board)
