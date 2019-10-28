@@ -83,14 +83,14 @@ def compare_players(player1, player2, games):
     moves = {player1.symbol:0, player2.symbol:0}
     max_decision_time = {player1.symbol: 0, player2.symbol: 0}
     for i in range(0, games):
-        if i % 1 == 0:
+        if i % 2 == 0:
             print(i, "games finished")
         if i % 2 == 0:
             game = ReversiGame(player1, player2, show_status=False, board_size=8)
         else:
             game = ReversiGame(player2, player1, show_status=False, board_size=8)
 
-        print(player1.turn_number)
+        #print(player1.turn_number)
 
         game_count_map[game.calc_winner()] += 1
         decision_times = game.get_decision_times()
@@ -117,15 +117,15 @@ def compare_players(player1, player2, games):
 
 
 def main():
-    # game = ReversiGame(get_combined_player('X', depth=5, width=5, expanding=False), get_combined_player('O', depth=6, width=4, expanding=True), show_status=True)
-    # print(game.max_decision_time)
-    # print("Total Moves made by each player: "+ "X: "+ str(game.moves_made['X']) + " O: "+str(game.moves_made['O']))
-    # for player in ['X', 'O']:
-    #     moves = game.moves_made[player]
-    #     time = game.decision_times[player]
-    #     average = time/moves
-    #     print("Average Decision Time For Player "+player+": "+str(average))
-    compare_players(get_combined_player('X'), get_base_player('O'), 5)
+    game = ReversiGame(get_combined_player('X'), get_combined_player('O'), show_status=True)
+    print(game.max_decision_time)
+    print("Total Moves made by each player: "+ "X: "+ str(game.moves_made['X']) + " O: "+str(game.moves_made['O']))
+    for player in ['X', 'O']:
+        moves = game.moves_made[player]
+        time = game.decision_times[player]
+        average = time/moves
+        print("Average Decision Time For Player "+player+": "+str(average))
+    # compare_players(get_combined_player('X', depth=6, width=4, expanding=False), get_combined_player('O', expanding=False), 20)
 
     # once we are close to end of game widen the beam
 
