@@ -46,7 +46,7 @@ def get_player_d(symbol):
     return MiniMaxComputerPlayer(symbol, 5, difference_heuristic, pruning=False, beam_search=beam_search)
 
 
-def get_combined_player(symbol, depth=7, width=3, change=True):
+def get_combined_player(symbol, depth=7, width=3, change=False):
     """
     :returns: the best combination of the minimax enhancements that your team can create
     """

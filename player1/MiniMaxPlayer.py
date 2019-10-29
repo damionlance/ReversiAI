@@ -7,7 +7,7 @@ from datetime import datetime
 
 class MiniMaxComputerPlayer:
 
-    def __init__(self, symbol, target, evaluation_function, pruning, beam_width=3, beam_search=None, change=True):
+    def __init__(self, symbol, target, evaluation_function, pruning, beam_width=3, beam_search=None, change=False):
         self.symbol = symbol
         self.target = target
         self.evaluation_function = evaluation_function
