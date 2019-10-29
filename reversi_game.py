@@ -36,11 +36,15 @@ class ReversiGame:
         self.play_move(self.player1)
         self.decision_times[self.player1.symbol] += (datetime.now()-start).total_seconds()
         move_time = (datetime.now()-start).total_seconds()
+        if move_time > 2.5:
+            print("BEEG MOVE",move_time)
         self.max_decision_time[self.player1.symbol] = move_time if move_time > self.max_decision_time[self.player1.symbol] else self.max_decision_time[self.player1.symbol]
         start = datetime.now()
         self.play_move(self.player2)
         self.decision_times[self.player2.symbol] += (datetime.now()-start).total_seconds()
         move_time = (datetime.now()-start).total_seconds()
+        if move_time > 2.5:
+            print("BEEG MOVE",move_time)
         self.max_decision_time[self.player2.symbol] = move_time if move_time > self.max_decision_time[self.player2.symbol] else self.max_decision_time[self.player2.symbol]
 
 
@@ -120,17 +124,19 @@ def compare_players(player1, player2, games):
 
 
 def main():
-    player1 = get_combined_player('X', depth=8)
-    player2 = get_base_player('O')
-    # game = ReversiGame(player1, player2, show_status=True)
-    # print(game.max_decision_time)
-    # print("Total Moves made by each player: "+ "X: "+ str(game.moves_made['X']) + " O: "+str(game.moves_made['O']))
-    # for player in ['X', 'O']:
-    #     moves = game.moves_made[player]
-    #     time = game.decision_times[player]
-    #     average = time/moves
-    #     print("Average Decision Time For Player "+player+": "+str(average))
-    compare_players(player1, player2, 10)
+    player1 = get_combined_player('X', depth=7)
+    player2 = get_base_player('O', depth=3)
+    game = ReversiGame(player1, player2, show_status=True)
+    print(game.max_decision_time)
+    print("Total Moves made by each player: "+ "X: "+ str(game.moves_made['X']) + " O: "+str(game.moves_made['O']))
+    for player in ['X', 'O']:
+        moves = game.moves_made[player]
+        time = game.decision_times[player]
+        average = time/moves
+        print("Average Decision Time For Player "+player+": "+str(average))
+    player2.write_tras_lookup(getcwd() + '/player1/trans_table.pickle', getcwd() + '/player1/lookup.pickle')
+
+    # compare_players(player1, player2, 50)
 
     # once we are close to end of game widen the beam
     # print(game.max_decision_time)

@@ -2,12 +2,12 @@ from player1.MiniMaxPlayer import MiniMaxComputerPlayer, simple_evaluate, differ
 from player1.damionWork.BeamSearch import beam_search
 
 
-def get_base_player(symbol):
+def get_base_player(symbol, depth=4):
     """
     :returns: a default minimax player that can operate successfully on a given 8x8 board
     """
 
-    return MiniMaxComputerPlayer(symbol, 4, difference_heuristic, pruning=False)
+    return MiniMaxComputerPlayer(symbol, depth, difference_heuristic, pruning=False)
 
 
 def get_player_a(symbol):
