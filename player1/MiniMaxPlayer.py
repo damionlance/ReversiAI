@@ -7,7 +7,7 @@ from datetime import datetime
 
 class MiniMaxComputerPlayer:
 
-    def __init__(self, symbol, target, evaluation_function, pruning, beam_width=3, beam_search=None):
+    def __init__(self, symbol, target, evaluation_function, pruning, beam_width=3, beam_search=None, change=True):
         self.symbol = symbol
         self.target = target
         self.evaluation_function = evaluation_function
@@ -19,6 +19,7 @@ class MiniMaxComputerPlayer:
         self.read_trans_table(getcwd() + '/player1/trans_table.pickle')
         self.read_lookup(getcwd() + '/player1/lookup.pickle')
         print(len(self.trans_table))
+        self.change_depth = change
 
     def get_move(self, board):
         possible_moves = board.calc_valid_moves(self.symbol)
@@ -37,11 +38,11 @@ class MiniMaxComputerPlayer:
                 best_score = score
                 best_move = move
         end = (datetime.utcnow() - start).total_seconds()
-        if end > 2.6 and self.move_pruning is not None:
+        if end > 2.6 and self.change_depth:
             print("Whoops, changing depth for ", self.symbol)
             self.target -= 1
             print(self.target)
-        elif end < 1 and self.target < 8 and self.move_pruning is not None:
+        elif end < 1 and self.target < 8 and self.change_depth:
             print("Going Deeper", self.symbol)
             self.target += 1
 

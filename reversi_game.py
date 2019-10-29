@@ -124,8 +124,8 @@ def compare_players(player1, player2, games):
 
 
 def main():
-    player1 = get_combined_player('X', depth=8)
-    player2 = get_base_player('O', depth=3)
+    player2 = get_combined_player('X', depth=8, change=True)
+    player1 = get_combined_player('O', depth=7, change=False)
     game = ReversiGame(player1, player2, show_status=False)
     print(game.max_decision_time)
     print("Total Moves made by each player: "+ "X: "+ str(game.moves_made['X']) + " O: "+str(game.moves_made['O']))
