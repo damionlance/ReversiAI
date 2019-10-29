@@ -1,5 +1,7 @@
 import copy
 import random
+from pickle import load, dump
+from os import getcwd
 
 
 class MiniMaxComputerPlayer:
@@ -11,9 +13,13 @@ class MiniMaxComputerPlayer:
         self.ab_pruning = pruning
         self.move_pruning = beam_search
         self.beam_width = beam_width
+        self.lookup = None
+        self.trans_table = None
+        self.read_trans_table(getcwd() + '/player1/trans_table.pickle')
+        self.read_lookup(getcwd() + '/player1/lookup.pickle')
+        print(len(self.trans_table))
 
     def get_move(self, board):
-
         possible_moves = board.calc_valid_moves(self.symbol)
         if self.move_pruning is not None:
             possible_moves = self.move_pruning(board, possible_moves, self.symbol, beam_width=self.beam_width)
@@ -29,8 +35,6 @@ class MiniMaxComputerPlayer:
                 best_score = score
                 best_move = move
 
-
-
         return best_move
 
     def minimax(self, board, depth, max_turn, alpha, beta):
@@ -39,12 +43,16 @@ class MiniMaxComputerPlayer:
         :param board: the board being played on
         :return: the number pair that represents the best move that can be made, determined by the algorithm
         '''
-
-        if depth == self.target or not board.game_continues():
-            return self.evaluation_function(board, self.symbol)
-
         opp = board.get_opponent_symbol(self.symbol)
-
+        if depth == self.target or not board.game_continues():
+            h = self.hash(board)
+            s = self.trans_table.get(h)
+            if s is not None:
+                return s
+            else:
+                s = self.evaluation_function(board, self.symbol)
+                self.trans_table[h] = s
+                return s
 
         if self.move_pruning is not None:
             possible_moves = self.move_pruning(board, board.calc_valid_moves(self.symbol),self.symbol, beam_width=self.beam_width) \
@@ -89,24 +97,75 @@ class MiniMaxComputerPlayer:
         for move in possible_moves:
             bc = copy.deepcopy(board)
             bc.make_move(self.symbol, move) if max_turn else bc.make_move(opp, move)
-            score = self.evaluation_function(bc, self.symbol) if max_turn else self.evaluation_function(bc, opp)
-            move_scores.append({'move': move, 'score':score})
+            h = self.hash(bc)
+            s = self.trans_table.get(h)
+            if s is not None:
+                score = s if max_turn else -s
+            else:
+                s = self.evaluation_function(bc, self.symbol)
+                self.trans_table[h] = s
+                score = s if max_turn else -s
+            move_scores.append({'move': move, 'score': score})
 
         ordered = sorted(move_scores, key=lambda x: x['score'], reverse=True if max_turn else False)
         return [x['move'] for x in ordered]
 
+    @staticmethod
+    def random_bitstring(length):
+        return random.randint(0, 2**length - 1)
+
+    @staticmethod
+    def init_lookup(size):
+        table = {}
+        for x in range(size):
+            for y in range(size):
+                for s in range(2):
+                    table[(x, y, s)] = MiniMaxComputerPlayer.random_bitstring(64)
+        return table
+
+    def hash(self, board):
+        size = board.get_size()
+        h = 0
+        for x in range(size):
+            for y in range(size):
+                symbol = board.get_symbol_for_position([x, y])
+                if symbol != ' ':
+                    s = symbol == 'x'
+                    h ^= self.lookup[(x, y, s)]
+        return h
+
+    def read_trans_table(self, path):
+        try:
+            with open(path, 'rb') as f:
+                self.trans_table = load(f)
+        except OSError:
+            print("No such file or directory")
+            self.trans_table = {}
+
+    def read_lookup(self, path):
+        try:
+            with open(path, 'rb') as f:
+                self.lookup = load(f)
+        except OSError:
+            print("No such file or directory")
+            self.lookup = self.init_lookup(8)
+
+    def write_tras_lookup(self, trans_path, lookup_path):
+        with open(trans_path, 'wb') as f:
+            dump(self.trans_table, f)
+        with open(lookup_path, 'wb') as f:
+            dump(self.lookup, f)
 
 
 def simple_evaluate(board, symbol):
     scores = board.calc_scores()
     opp = board.get_opponent_symbol(symbol)
-    diff = scores[symbol] - scores[opp]
     if scores[symbol] > scores[opp]:
         return scores[symbol]
     elif scores[symbol] == scores[opp]:
         return 0
     else:
-        return 0-scores[opp]
+        return -scores[opp]
 
 
 def difference_heuristic(board, symbol):
@@ -154,8 +213,3 @@ def corner_heuristic(board, symbol):
 def combined_heuristics(board, symbol):
     overall_heuristic = difference_heuristic(board, symbol) + mobility_heuristic(board, symbol) + corner_heuristic(board, symbol)
     return overall_heuristic
-
-
-
-
-

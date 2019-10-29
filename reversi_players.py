@@ -65,6 +65,9 @@ class MiniMaxComputerPlayer:
         self.symbol = symbol
         self.target = target
 
+    def set_symbol(self, symbol):
+        self.symbol = symbol
+
     def get_move(self, board):
         return self.minimax(board)
 

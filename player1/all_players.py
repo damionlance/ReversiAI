@@ -50,4 +50,4 @@ def get_combined_player(symbol, depth=7, width=3, expanding=True):
     """
     :returns: the best combination of the minimax enhancements that your team can create
     """
-    return MiniMaxComputerPlayer(symbol, depth, combined_heuristics, pruning=True, beam_search=beam_search, beam_width=width, expanding=expanding)
+    return MiniMaxComputerPlayer(symbol, depth, combined_heuristics, pruning=True, beam_search=beam_search, beam_width=width)

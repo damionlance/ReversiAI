@@ -4,6 +4,7 @@ import copy
 from datetime import datetime
 from reversi_board import ReversiBoard
 from player1.all_players import *
+from os import getcwd
 
 
 class ReversiGame:
@@ -105,6 +106,8 @@ def compare_players(player1, player2, games):
             average_move_time[symbol] += (decision_times[symbol] / game.moves_made[symbol])
             moves[symbol] += game.moves_made[symbol]
 
+        player2.write_tras_lookup(getcwd() + '/player1/trans_table.pickle', getcwd() + '/player1/lookup.pickle')
+
     average_scores[player1.symbol] = average_scores[player1.symbol]/games
     average_scores[player2.symbol] = average_scores[player2.symbol]/games
     print(game_count_map)
@@ -117,17 +120,21 @@ def compare_players(player1, player2, games):
 
 
 def main():
-    game = ReversiGame(get_combined_player('X'), get_combined_player('O'), show_status=True)
-    print(game.max_decision_time)
-    print("Total Moves made by each player: "+ "X: "+ str(game.moves_made['X']) + " O: "+str(game.moves_made['O']))
-    for player in ['X', 'O']:
-        moves = game.moves_made[player]
-        time = game.decision_times[player]
-        average = time/moves
-        print("Average Decision Time For Player "+player+": "+str(average))
-    # compare_players(get_combined_player('X', depth=6, width=4, expanding=False), get_combined_player('O', expanding=False), 20)
+    player1 = get_combined_player('X', depth=8)
+    player2 = get_base_player('O')
+    # game = ReversiGame(player1, player2, show_status=True)
+    # print(game.max_decision_time)
+    # print("Total Moves made by each player: "+ "X: "+ str(game.moves_made['X']) + " O: "+str(game.moves_made['O']))
+    # for player in ['X', 'O']:
+    #     moves = game.moves_made[player]
+    #     time = game.decision_times[player]
+    #     average = time/moves
+    #     print("Average Decision Time For Player "+player+": "+str(average))
+    compare_players(player1, player2, 10)
 
     # once we are close to end of game widen the beam
+    # print(game.max_decision_time)
+
 
 if __name__ == "__main__":
     main()
