@@ -2,6 +2,7 @@ import copy
 import random
 from pickle import load, dump
 from os import getcwd
+from datetime import datetime
 
 
 class MiniMaxComputerPlayer:
@@ -26,6 +27,7 @@ class MiniMaxComputerPlayer:
         random.shuffle(possible_moves)
         best_move = possible_moves[0]
         best_score = float('-inf')
+        start = datetime.utcnow()
         for move in possible_moves:
             bc = copy.deepcopy(board)
             bc.make_move(self.symbol, move)
@@ -34,6 +36,15 @@ class MiniMaxComputerPlayer:
             if score > best_score:
                 best_score = score
                 best_move = move
+        end = (datetime.utcnow() - start).total_seconds()
+        if end > 2.6 and self.move_pruning is not None:
+            print("Whoops, changing depth for ", self.symbol)
+            self.target -= 1
+            print(self.target)
+        elif end < 1 and self.target < 8 and self.move_pruning is not None:
+            print("Going Deeper", self.symbol)
+            self.target += 1
+
 
         return best_move
 
